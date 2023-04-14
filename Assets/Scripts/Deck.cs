@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Deck : MonoBehaviour
@@ -60,7 +62,18 @@ public class Deck : MonoBehaviour
          * Barajar las cartas aleatoriamente.
          * El método Random.Range(0,n), devuelve un valor entre 0 y n-1
          * Si lo necesitas, puedes definir nuevos arrays.
-         */       
+         */
+        for (int i = 0; i < values.Length; i++)
+        {
+            int temp = values[i];
+            Sprite temp2 = faces[i];
+
+            int randomIndex = Random.Range(i, values.Length);
+            values[i] = values[randomIndex];
+            faces[i] = faces[randomIndex];
+            values[randomIndex] = temp;
+            faces[randomIndex] = temp2;
+        }
     }
 
     void StartGame()
@@ -132,6 +145,7 @@ public class Deck : MonoBehaviour
          */                
          
     }
+
 
     public void PlayAgain()
     {
