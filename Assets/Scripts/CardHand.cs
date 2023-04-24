@@ -14,18 +14,18 @@ public class CardHand : MonoBehaviour
         points = 0;
         //Definimos dónde posicionamos las cartas de cada uno
         if (!isDealer)
-            coordY = 3;
+            coordY = -2;
         else
-            coordY = -1;
+            coordY = 2;
     }
 
     public void Clear()
     {
         points = 0;
         if (!isDealer)
-            coordY = 3;
+            coordY = -2;
         else
-            coordY = -1;
+            coordY = 2;
         foreach (GameObject g in cards)
         {
             Destroy(g);

@@ -9,21 +9,23 @@ public class Deck : MonoBehaviour
     public GameObject dealer;
     public GameObject player;
     public Button hitButton;
-    public Button stickButton;
+    public Button standButton;
     public Button playAgainButton;
     public Text finalMessage;
     public Text probMessage;
     private CardHand playerCardHand = new CardHand();
     private CardHand dealerCardHand = new CardHand();
+    
 
     public int[] values = new int[52];
-    int cardIndex = 0;    
+    int cardIndex = 0;
        
     private void Awake()
     {    
         InitCardValues();
         playerCardHand = player.GetComponent<CardHand>();
         dealerCardHand = dealer.GetComponent<CardHand>();
+        
     }
 
     private void Start()
@@ -34,6 +36,11 @@ public class Deck : MonoBehaviour
 
     private void InitCardValues()
     {
+        /*TODO:
+         * Asignar un valor a cada una de las 52 cartas del atributo "values".
+         * En principio, la posición de cada valor se deberá corresponder con la posición de faces. 
+         * Por ejemplo, si en faces[1] hay un 2 de corazones, en values[1] debería haber un 2.
+         */
         var inicio = 0;
         var valor = 1;
         var limitador = 13;
@@ -63,6 +70,11 @@ public class Deck : MonoBehaviour
 
     private void ShuffleCards()
     {
+        /*TODO:
+         * Barajar las cartas aleatoriamente.
+         * El método Random.Range(0,n), devuelve un valor entre 0 y n-1
+         * Si lo necesitas, puedes definir nuevos arrays.
+         */
         for (int i = 0; i < values.Length; i++)
         {
             int temp = values[i];
@@ -78,6 +90,9 @@ public class Deck : MonoBehaviour
 
     void StartGame()
     {
+        /*TODO:
+        * Si alguno de los dos obtiene Blackjack, termina el juego y mostramos mensaje
+        */
         for (int i = 0; i < 2; i++)
         {
             PushPlayer();
@@ -86,17 +101,25 @@ public class Deck : MonoBehaviour
 
         if (playerCardHand.points == 21 && dealerCardHand.points == 21)
         {
-            print(finalMessage);
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "EMPATE";
+            hitButton.interactable = false;
+            standButton.interactable = false;
         }
         else if (dealerCardHand.points == 21)
         {
-            print(finalMessage);
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER LOSE";
+            hitButton.interactable = false;
+            standButton.interactable = false;
         }
         else if (playerCardHand.points == 21)
         {
-            print(finalMessage);
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER WINS";
+            hitButton.interactable = false;
+            standButton.interactable = false;
         }
-
     }
 
     private void CalculateProbabilities()
@@ -107,6 +130,42 @@ public class Deck : MonoBehaviour
          * - Probabilidad de que el jugador obtenga entre un 17 y un 21 si pide una carta
          * - Probabilidad de que el jugador obtenga más de 21 si pide una carta          
          */
+        var favorables = 0;
+        var favorables2 = 0;
+        var favorables3 = 0;
+        var totales = 0;
+      
+        for (var i = cardIndex; i<values.Length; i++)
+        {
+            if (values[3] + values[i] > playerCardHand.points)
+            {
+                favorables++;
+            }
+            if (playerCardHand.points + values[i] >= 17 && playerCardHand.points + values[i] <= 21)
+            {
+                favorables2++;
+            }
+            if (playerCardHand.points + values[i] > 21)
+            {
+                favorables3++;
+            }
+            totales++;
+        }
+
+        double resultado =((double)favorables/ (double)totales);
+        double resultado2 = ((double)favorables2 / (double)totales);
+        double resultado3 = ((double)favorables3 / (double)totales);
+        string a = resultado.ToString();
+        string b = resultado2.ToString();
+        string c = resultado3.ToString();
+
+
+        probMessage.text =
+        "Deal > Player: " + a + "\n" +
+        "17 <= X <= 21: " + b + "\n" +
+        "21 > X: " + c;
+
+        Debug.Log(resultado);
     }
 
     void PushDealer()
@@ -125,16 +184,22 @@ public class Deck : MonoBehaviour
     public void Hit()
     {
         /*TODO: 
-         * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
-         */
+        * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
+        */
         
         //Repartimos carta al jugador
         PushPlayer();
 
         /*TODO:
          * Comprobamos si el jugador ya ha perdido y mostramos mensaje
-         */      
-
+         */
+        if (playerCardHand.points > 21)
+        {
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER LOSE";
+            hitButton.interactable = false;
+            standButton.interactable = false;
+        }
     }
 
     public void Stand()
@@ -142,20 +207,53 @@ public class Deck : MonoBehaviour
         /*TODO: 
          * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
          */
+        hitButton.interactable = false;
+        standButton.interactable = false;
 
+        while(dealerCardHand.points <= 16)
+        {
+            PushDealer();
+        }
+
+        if (dealerCardHand.points > 21)
+        {
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER WINS";
+            hitButton.interactable = false;
+            standButton.interactable = false;
+        }
+        else if (playerCardHand.points == dealerCardHand.points)
+        {
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "EMPATE";
+            hitButton.interactable = false;
+            standButton.interactable = false;
+        }
+        else if (dealerCardHand.points > playerCardHand.points)
+        {
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER LOSE";
+            hitButton.interactable = false;
+            standButton.interactable = false;
+        }
+        else if (dealerCardHand.points < playerCardHand.points)
+        {
+            dealerCardHand.cards[0].GetComponent<CardModel>().ToggleFace(true);
+            finalMessage.text = "PLAYER WINS";
+            hitButton.interactable = false;
+            standButton.interactable = false;
+        }
         /*TODO:
          * Repartimos cartas al dealer si tiene 16 puntos o menos
          * El dealer se planta al obtener 17 puntos o más
          * Mostramos el mensaje del que ha ganado
-         */                
-         
+         */
     }
-
 
     public void PlayAgain()
     {
         hitButton.interactable = true;
-        stickButton.interactable = true;
+        standButton.interactable = true;
         finalMessage.text = "";
         player.GetComponent<CardHand>().Clear();
         dealer.GetComponent<CardHand>().Clear();          
