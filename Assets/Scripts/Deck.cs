@@ -13,6 +13,8 @@ public class Deck : MonoBehaviour
     public Button playAgainButton;
     public Text finalMessage;
     public Text probMessage;
+    public Text pointPlayerMessage;
+    public Text pointDealerMessage;
     private CardHand playerCardHand = new CardHand();
     private CardHand dealerCardHand = new CardHand();
     
@@ -23,6 +25,7 @@ public class Deck : MonoBehaviour
     private void Awake()
     {    
         InitCardValues();
+        //creo las manos de cartas
         playerCardHand = player.GetComponent<CardHand>();
         dealerCardHand = dealer.GetComponent<CardHand>();
         
@@ -48,19 +51,23 @@ public class Deck : MonoBehaviour
         for(int i = 0; i < 4; i++)
         {
             for(int j=inicio ; j < limitador; j++) {
+                //para el caso del As que valdrá 11
                 if(j == inicio)
                 {
                     values[j] = 11;
                 }
+                //para asignar la repeticion de los 4 dieces
                 else if(j>=limitador-3) {
                     values[j] = 10;
                 }
+                // los valores
                 else
                 {
                     values[j] = valor;
                 }
                 valor++;
             }
+            //reinicio el valor, y paso a rellenar el siguiente mazo de la baraja
             valor = 1;
             inicio += 13;
             limitador += 13;
@@ -77,12 +84,15 @@ public class Deck : MonoBehaviour
          */
         for (int i = 0; i < values.Length; i++)
         {
+            //creo dos variables temporales
             int temp = values[i];
             Sprite temp2 = faces[i];
-
+            // genero un valor random
             int randomIndex = Random.Range(i, values.Length);
+            //le asigno ese valor random a las cartas
             values[i] = values[randomIndex];
             faces[i] = faces[randomIndex];
+            //guardo las variables para no perderlas
             values[randomIndex] = temp;
             faces[randomIndex] = temp2;
         }
@@ -98,6 +108,7 @@ public class Deck : MonoBehaviour
             PushPlayer();
             PushDealer();
         }
+        pointPlayerMessage.text = "Puntos: " + playerCardHand.points.ToString();
 
         if (playerCardHand.points == 21 && dealerCardHand.points == 21)
         {
@@ -105,6 +116,7 @@ public class Deck : MonoBehaviour
             finalMessage.text = "EMPATE";
             hitButton.interactable = false;
             standButton.interactable = false;
+            pointDealerMessage.text = "Puntos del dealer: " + dealerCardHand.points.ToString();
         }
         else if (dealerCardHand.points == 21)
         {
@@ -112,6 +124,7 @@ public class Deck : MonoBehaviour
             finalMessage.text = "PLAYER LOSE";
             hitButton.interactable = false;
             standButton.interactable = false;
+            pointDealerMessage.text = "Puntos del dealer: " + dealerCardHand.points.ToString();
         }
         else if (playerCardHand.points == 21)
         {
@@ -119,6 +132,7 @@ public class Deck : MonoBehaviour
             finalMessage.text = "PLAYER WINS";
             hitButton.interactable = false;
             standButton.interactable = false;
+            pointDealerMessage.text = "Puntos del dealer: " + dealerCardHand.points.ToString();
         }
     }
 
@@ -199,7 +213,9 @@ public class Deck : MonoBehaviour
             finalMessage.text = "PLAYER LOSE";
             hitButton.interactable = false;
             standButton.interactable = false;
+            pointDealerMessage.text = "Puntos del dealer: " + dealerCardHand.points.ToString();
         }
+        pointPlayerMessage.text = "Puntos: "+ playerCardHand.points.ToString();
     }
 
     public void Stand()
@@ -214,6 +230,7 @@ public class Deck : MonoBehaviour
         {
             PushDealer();
         }
+        pointDealerMessage.text = "Puntos del dealer: " + dealerCardHand.points.ToString();
 
         if (dealerCardHand.points > 21)
         {
@@ -255,6 +272,8 @@ public class Deck : MonoBehaviour
         hitButton.interactable = true;
         standButton.interactable = true;
         finalMessage.text = "";
+        pointDealerMessage.text = "Puntos del dealer:";
+        pointPlayerMessage.text = "Puntos:";
         player.GetComponent<CardHand>().Clear();
         dealer.GetComponent<CardHand>().Clear();          
         cardIndex = 0;
